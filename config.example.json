@@ -1,0 +1,12 @@
+{
+  "project_name": "you_project_name",
+  "path": "/path/to/store",
+  "db": {
+    "host": "localhost",
+    "user": "db_user",
+    "password": "db_pass",
+    "database": "db_name",
+    "port": "5432"
+  },
+  "schema_exclude": ["logdata%"]
+}
