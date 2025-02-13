@@ -1,5 +1,6 @@
-import { cfg1 } from "./core/config.ts";
+import { getDbPool } from "./core/config.ts";
 import { writeSchemas } from "./core/schemas.ts";
+import { Config } from "./core/types.ts";
 import {
   dateFormat,
   gitCommitAndPush,
@@ -8,34 +9,65 @@ import {
   stopSpinner,
   verifyDirectory,
 } from "./core/utils.ts";
+import { readJson } from "./deps.ts";
 
-// Main execution
-console.log("Starting ZPG Runner...\n");
+const configPath = new URL("./zpgr_config.json", import.meta.url).pathname;
+const config: Config[] = await readJson(configPath) as Config[];
+// console.log('config',config);
 
-startSpinner("Verifying directory...");
-await verifyDirectory(cfg1.path);
-stopSpinner();
-
-startSpinner("Checking git repository...");
-const isGit = await isGitRepository(cfg1.path);
-stopSpinner();
-
-if (isGit) {
-  startSpinner("Writing schemas...");
-  await writeSchemas();
-  stopSpinner();
-
-  const token = cfg1.git_access_token;
-  const projectPath = cfg1.path;
-  const commitMessage = `auto: zpg_runner ${dateFormat(new Date())}`;
+for (let i = 0; i < config.length; i++) {
+  const {
+    path,
+    git_access_token,
+    name,
+    user,
+    password,
+    database,
+    host,
+    port,
+    schema_exclude,
+  } = config[i];
 
   try {
-    startSpinner("Committing and pushing changes...");
-    await gitCommitAndPush(commitMessage, token, projectPath);
+    // Main execution
+    console.log(`\nStarting ZPG Runner - \x1b[33m${name}\x1b[0m...`);
+
+    startSpinner(`Verifying directory...`);
+    await verifyDirectory(path);
     stopSpinner();
-    console.log("\n✔ Successfully committed and pushed changes");
+
+    startSpinner(`Checking git repository...`);
+    const isGit = await isGitRepository(path);
+    stopSpinner();
+
+    if (isGit) {
+      startSpinner(`Writing schemas...`);
+
+      const dbPool = getDbPool(user, password, database, host, port);
+      await writeSchemas(dbPool, schema_exclude, path);
+      stopSpinner();
+
+      const token = git_access_token;
+      const projectPath = path;
+      const commitMessage = `auto: zpg_runner ${dateFormat(new Date())}`;
+
+      try {
+        startSpinner(`Committing and pushing changes...`);
+        await gitCommitAndPush(commitMessage, token, projectPath);
+        stopSpinner();
+        console.log("\n✔ Successfully Committed and pushed changes");
+      } catch (error) {
+        stopSpinner();
+        console.error(`\n✖ Failed to commit and push :`, error);
+      }
+    }
   } catch (error) {
-    stopSpinner();
-    console.error("\n✖ Failed to commit and push:", error);
+    if (error instanceof Error) {
+      console.error(`Error processing config: ${error.message}`);
+    } else {
+      console.error("An unknown error occurred");
+    }
   }
 }
+
+console.log("\n✔ All task successfully completed\n");

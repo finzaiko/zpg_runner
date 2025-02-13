@@ -24,6 +24,12 @@ export interface IndexDef {
   indexdef: Uint8Array;
 }
 
+export interface TriggerDefinition {
+  proname: string;
+  tgname: string;
+  pg_get_triggerdef: string;
+}
+
 export interface ViewDefinition {
   viewname: string;
   viewdef: string;

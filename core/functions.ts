@@ -1,5 +1,4 @@
-import { ensureDirSync } from "../deps.ts";
-import { baseDir, dbPool } from "./config.ts";
+import { ensureDirSync, Pool } from "../deps.ts";
 import { sqlFuncDef } from "./sql.ts";
 
 interface FunctionDefinition {
@@ -8,6 +7,7 @@ interface FunctionDefinition {
 }
 
 const _getFunctionDefenition = async (
+  dbPool: Pool,
   schemaName: string,
 ): Promise<FunctionDefinition[]> => {
   const client = await dbPool.connect();
@@ -21,11 +21,15 @@ const _getFunctionDefenition = async (
   }
 };
 
-const writeFunctions = async (schemaName: string) => {
-  const def = await _getFunctionDefenition(schemaName);
+const writeFunctions = async (
+  dbPool: Pool,
+  path: string,
+  schemaName: string,
+) => {
+  const def = await _getFunctionDefenition(dbPool, schemaName);
   for (let i = 0; i < def.length; i++) {
     const df = def[i];
-    const dir = `${baseDir}/${schemaName}/functions`;
+    const dir = `${path}/${schemaName}/functions`;
     ensureDirSync(dir);
     Deno.writeFileSync(
       `${dir}/${schemaName}.${df.func_name}.sql`,

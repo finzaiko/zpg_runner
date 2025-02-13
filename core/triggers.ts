@@ -1,14 +1,12 @@
-import { ensureDirSync } from "../deps.ts";
-import { baseDir, dbPool } from "./config.ts";
+import { ensureDirSync, Pool } from "../deps.ts";
 import { sqlTriggers } from "./sql.ts";
+import { TriggerDefinition } from "./types.ts";
 
-interface TriggerDefinition {
-  proname: string;
-  tgname: string;
-  pg_get_triggerdef: string;
-}
-
-const _getTriggers = async (schemaName: string, tableName: string) => {
+const _getTriggers = async (
+  dbPool: Pool,
+  schemaName: string,
+  tableName: string,
+) => {
   const client = await dbPool.connect();
   try {
     const res = await client.queryObject<TriggerDefinition>(
@@ -20,11 +18,16 @@ const _getTriggers = async (schemaName: string, tableName: string) => {
   }
 };
 
-const writeTriggers = async (schemaName: string, tableName: string) => {
-  const def = await _getTriggers(schemaName, tableName);
+const writeTriggers = async (
+  dbPool: Pool,
+  path: string,
+  schemaName: string,
+  tableName: string,
+) => {
+  const def = await _getTriggers(dbPool, schemaName, tableName);
   for (let i = 0; i < def.length; i++) {
     const df = def[i];
-    const dir = `${baseDir}/${schemaName}/tables/triggers`;
+    const dir = `${path}/${schemaName}/tables/triggers`;
     ensureDirSync(dir);
     Deno.writeFileSync(
       `${dir}/${schemaName}.${df.proname}__${df.tgname}.sql`,
