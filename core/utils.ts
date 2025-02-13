@@ -124,4 +124,22 @@ const dateFormat = (inputDate: Date): string => {
     hour12: false,
   }).replace(/(\d+)\/(\d+)\/(\d+),/, "$3-$1-$2");
 };
-export { dateFormat, gitCommitAndPush, isGitRepository, verifyDirectory };
+
+// Simple spinner animation frames
+const spinner = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
+let spinnerInterval: number;
+
+function startSpinner(text: string) {
+  let i = 0;
+  spinnerInterval = setInterval(() => {
+    Deno.stdout.writeSync(new TextEncoder().encode(`\r${spinner[i]} ${text}`));
+    i = (i + 1) % spinner.length;
+  }, 80);
+}
+
+function stopSpinner() {
+  clearInterval(spinnerInterval);
+  Deno.stdout.writeSync(new TextEncoder().encode("\r"));
+}
+
+export { dateFormat, gitCommitAndPush, isGitRepository, verifyDirectory, startSpinner, stopSpinner };

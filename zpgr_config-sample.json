@@ -9,5 +9,16 @@
     "password": "postgres",
     "schema_exclude": ["log1"],
     "git_access_token": "1234"
+  },
+  {
+    "name": "sample2",
+    "path": "/project/path2",
+    "host": "localhost",
+    "port": 5432,
+    "database": "chinook",
+    "user": "postgres",
+    "password": "postgres",
+    "schema_exclude": ["log1"],
+    "git_access_token": "1234"
   }
 ]
