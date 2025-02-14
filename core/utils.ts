@@ -1,3 +1,5 @@
+import { path } from "../deps.ts";
+
 const isGitRepository = async (path: string): Promise<boolean> => {
   try {
     // Check if .git directory exists
@@ -142,4 +144,25 @@ function stopSpinner() {
   Deno.stdout.writeSync(new TextEncoder().encode("\r"));
 }
 
-export { dateFormat, gitCommitAndPush, isGitRepository, verifyDirectory, startSpinner, stopSpinner };
+function getConfigPath(): string {
+  // Check if we're running as a compiled binary
+  const isCompiled = Deno.execPath().endsWith("zpg_runner");
+
+  if (isCompiled) {
+    // When compiled, use current working directory
+    return path.join(Deno.cwd(), "zpgr_config.json");
+  } else {
+    // During development, use import.meta.url
+    return new URL("../zpgr_config.json", import.meta.url).pathname;
+  }
+}
+
+export {
+  dateFormat,
+  getConfigPath,
+  gitCommitAndPush,
+  isGitRepository,
+  startSpinner,
+  stopSpinner,
+  verifyDirectory,
+};

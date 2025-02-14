@@ -3,6 +3,7 @@ import { writeSchemas } from "./core/schemas.ts";
 import { Config } from "./core/types.ts";
 import {
   dateFormat,
+  getConfigPath,
   gitCommitAndPush,
   isGitRepository,
   startSpinner,
@@ -11,9 +12,8 @@ import {
 } from "./core/utils.ts";
 import { readJson } from "./deps.ts";
 
-const configPath = new URL("./zpgr_config.json", import.meta.url).pathname;
+const configPath = getConfigPath();
 const config: Config[] = await readJson(configPath) as Config[];
-// console.log('config',config);
 
 for (let i = 0; i < config.length; i++) {
   const {
