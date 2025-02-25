@@ -1,16 +1,7 @@
-# ZPG RUNNER - DENO
+# ZPG RUNNER - MAIN
 
 Postgres backup file to git
 
-### Run
-```bash
-deno task start
-```
-
-### Compile
-```bash
-deno task start
-```
 
 ### Requirement
 
