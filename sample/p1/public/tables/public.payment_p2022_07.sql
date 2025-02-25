@@ -1,0 +1,3 @@
+CREATE TABLE public.payment_p2022_07
+    PARTITION OF public.payment FOR VALUES FROM ('2022-07-01 07:00:00+07') TO ('2022-08-01 07:00:00+07')
+;
