@@ -53,3 +53,4 @@ config_*
 config.json
 package-lock.json
 zpg_runner
+zpgr_config.json
